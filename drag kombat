@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag Kombat</title>
+    <style>
+        /* This makes the game look cool and centers it */
+        body {
+            background-color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: white;
+            font-family: monospace;
+        }
+        #game-container {
+            position: relative;
+            border: 4px solid hotpink;
+        }
+        canvas {
+            display: block;
+        }
+        /* Health Bars on top of the image */
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: space-between;
+        }
+        .health-bar {
+            width: 200px;
+            height: 30px;
+            border: 2px solid white;
+            background: red;
+        }
+        .health-fill {
+            height: 100%;
+            background: limegreen;
+            width: 100%; /* Full health */
+            transition: width 0.1s;
+        }
+        h2 { margin: 0; text-shadow: 2px 2px black; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <canvas id="gameCanvas" width="800" height="500"></canvas>
+        
+        <div id="ui">
+            <div>
+                <h2 style="color: gold;">TRIXIE</h2>
+                <div class="health-bar"><div id="p1-health" class="health-fill"></div></div>
+            </div>
+            <div>
+                <h2 style="color: red;">KATYA</h2>
+                <div class="health-bar"><div id="p2-health" class="health-fill"></div></div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // 1. LOAD YOUR IMAGE
+    // Since the file is in the same folder, we just use the name!
+    const bgImage = new Image();
+    bgImage.src = "unnamed.jpg"; 
+
+    // 2. SETUP AUDIO (Trixie Voices)
+    const synth = window.speechSynthesis;
+    const phrases = ["Honey!", "Thworp!", "Bird noises!", "Pink!", "Aaaah!"];
+
+    function scream() {
+        const text = phrases[Math.floor(Math.random() * phrases.length)];
+        const utter = new SpeechSynthesisUtterance(text);
+        utter.pitch = 1.5; // High pitch for Trixie
+        utter.rate = 1.2;
+        synth.speak(utter);
+    }
+
+    // 3. GAME VARIABLES
+    let katyaHealth = 100;
+    
+    // 4. DRAWING LOOP
+    function draw() {
+        // Draw the image you uploaded to fill the screen
+        if (bgImage.complete) {
+            ctx.drawImage(bgImage, 0, 0, 800, 500);
+        } else {
+            // Loading screen if image isn't ready
+            ctx.fillStyle = "black";
+            ctx.fillRect(0,0,800,500);
+            ctx.fillStyle = "white";
+            ctx.fillText("Loading unnamed.jpg...", 350, 250);
+        }
+        requestAnimationFrame(draw);
+    }
+    draw();
+
+    // 5. CONTROLS (Press Space to Attack)
+    window.addEventListener('keydown', (e) => {
+        if (e.key === " ") {
+            // Play sound
+            scream();
+            
+            // Draw a flash effect (The Attack)
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.fillRect(0, 0, 800, 500);
+
+            // Lower Katya's Health
+            katyaHealth -= 10;
+            if (katyaHealth < 0) katyaHealth = 0;
+            document.getElementById('p2-health').style.width = katyaHealth + "%";
+
+            if (katyaHealth === 0) {
+                alert("TRIXIE WINS! Refresh to play again.");
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
